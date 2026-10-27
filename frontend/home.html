@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Inicio</title>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- navbar -->
+    <nav class="bg-white shadow">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+            <span class="font-bold text-xl text-[#002D74]">MiApp</span>
+            <div class="flex items-center gap-4">
+                <span id="nav-user" class="text-sm text-gray-600"></span>
+                <button id="logout-btn"
+                    class="bg-violet-500 hover:bg-violet-600 text-white text-sm py-2 px-4 rounded-xl">Cerrar sesión</
+                        </div>
+            </div>
+    </nav>
+    <!-- contenido -->
+    <main class="max-w-5xl mx-auto px-6 py-10">
+        <div class="bg-gray-100 rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center gap-8">
+            <div class="md:w-1/2">
+                <h1 class="font-bold text-3xl text-[#002D74]">Hola, <span id="user-name"></span></h1>
+                <p class="mt-4 text-[#002D74]">Iniciaste sesión correctamente. Esta página solo se ve con sesión activa.
+                </p>
+                <ul class="mt-6 text-sm text-gray-600 space-y-1">
+                    <li><b>Correo:</b> <span id="user-email"></span></li>
+                    <li><b>Cuenta creada:</b> <span id="user-created"></span></li>
+                    <li><b>Último ingreso:</b> <span id="user-last"></span></li>
+                </ul>
+            </div>
+            <div class="md:w-1/2">
+                <img class="rounded-2xl" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic1.cbrimages.com%2Fwordpress%2Fwp-content%2Fuploads%2F2023%2F08%2Fec99be38-b4fe-449c-a342-3917135fc744.jpeg&f=1&nofb=1&ipt=7993196bede142e865a2290f1f9a669e4620cbc06fb7fbe426fe518d921d6f04&ipo=images" alt="Imagen de bienvenida">
+            </div>
+        </div>
+        <!-- base de conocimiento de apps móviles (mobile.js) -->
+        <section class="mt-10 bg-gray-100 rounded-2xl shadow-lg p-6 md:p-8">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                    <h2 class="font-bold text-2xl text-[#002D74]">Apps móviles</h2>
+                    <p id="mobile-stats" class="text-sm text-gray-600 mt-1">Base de conocimiento interna</p>
+                </div>
+                <input id="mobile-search" type="search" placeholder="Buscar (ej. flutter, seguridad, push)..."
+                    class="p-2 rounded-xl border bg-white w-full md:w-72">
+            </div>
+            <div id="mobile-tabs" class="flex flex-wrap gap-2 mt-6"></div>
+            <div id="mobile-chips" class="flex flex-wrap gap-2 mt-3"></div>
+            <div id="mobile-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
+        </section>
+    </main>
+    <script>
+        // Debe abrirse desde el servidor Flask
+        if (location.protocol === "file:") location.href = "http://localhost:5000/home";
+        const fmt = (s) => s ? new Date(s).toLocaleString() : "—";
+        fetch("/api/me")
+            .then(r => { if (!r.ok) throw 0; return r.json(); })
+            .then(({ user }) => {
+                const name = user.name || user.email;
+                document.getElementById("user-name").textContent = name;
+                document.getElementById("nav-user").textContent = user.email;
+                document.getElementById("user-email").textContent = user.email;
+                document.getElementById("user-created").textContent = fmt(user.created_at);
+                document.getElementById("user-last").textContent = fmt(user.last_login);
+            })
+            .catch(() => { window.location.href = "/"; });
+        document.getElementById("logout-btn").addEventListener("click", async () => {
+            await fetch("/api/logout", { method: "POST" });
+            window.location.href = "/";
+        });
+    </script>
+    <script src="mobile.js"></script>
+</body>
+
+</html>
